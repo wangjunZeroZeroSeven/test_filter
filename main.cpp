@@ -8,9 +8,10 @@
 // #include "test_stl/visit_variant.h"
 // #include "test_stl/bind.h"
 // #include "test_example/method_pointer.h"
-#include "test_example/one_method_override_same_two.h"
+// #include "test_example/one_method_override_same_two.h"
+#include "test_example/test_spdlog.h"
 
 
 int main(int, char**) {
-    test_one_method_override_same_two();
+    test_spdlog();
 }
