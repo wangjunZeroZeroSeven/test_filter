@@ -1,0 +1,185 @@
+#ifndef __STRING_FORMATER_H__
+#define __STRING_FORMATER_H__
+
+#include <string>
+#include <vector>
+#include <list>
+#include <map>
+#include <unordered_map>
+
+namespace {
+
+std::string ObjectToString(int num) {
+    return std::to_string(num);
+}
+
+std::string ObjectToString(unsigned num) {
+    return std::to_string(num);
+}
+
+std::string ObjectToString(long num) {
+    return std::to_string(num);
+}
+
+std::string ObjectToString(unsigned long num) {
+    return std::to_string(num);
+}
+
+std::string ObjectToString(long long num) {
+    return std::to_string(num);
+}
+
+std::string ObjectToString(unsigned long long num) {
+    return std::to_string(num);
+}
+
+std::string ObjectToString(float num) {
+    return std::to_string(num);
+}
+
+std::string ObjectToString(double num) {
+    return std::to_string(num);
+}
+
+std::string ObjectToString(long double num) {
+    return std::to_string(num);
+}
+
+// copy from std::to_string params upwards.
+
+std::string ObjectToString(const std::string& s) {
+    return s;
+}
+
+template<typename T>
+std::string ObjectToString(const std::vector<T>& vec) {
+    std::string result = "[";
+    size_t index = 0;
+    for (const auto& elem: vec)
+    {
+        result += ObjectToString(elem);
+        if (index + 1 != vec.size())
+        {
+            result += ", ";
+        }
+        index++;
+    }
+    result += "]";
+    return result;
+}
+
+template<typename T>
+std::string ObjectToString(const std::list<T>& vec) {
+    std::string result = "[";
+    size_t index = 0;
+    for (const auto& elem: vec)
+    {
+        result += ObjectToString(elem);
+        if (index + 1 != vec.size())
+        {
+            result += ", ";
+        }
+        index++;
+    }
+    result += "]";
+    return result;
+}
+
+template<typename key, typename value>
+std::string ObjectToString(const std::map<key, value>& vec) {
+    std::string result = "{";
+    size_t index = 0;
+    for (const auto& item: vec)
+    {
+        result += ObjectToString(item.first) + ": " + ObjectToString(item.second);
+        if (index + 1 != vec.size())
+        {
+            result += ", ";
+        }
+        index++;
+    }
+    result += "}";
+    return result;
+}
+
+template<typename key, typename value>
+std::string ObjectToString(const std::unordered_map<key, value>& vec) {
+    std::string result = "{";
+    size_t index = 0;
+    for (const auto& item: vec)
+    {
+        result += ObjectToString(item.first) + ": " + ObjectToString(item.second);
+        if (index + 1 != vec.size())
+        {
+            result += ", ";
+        }
+        index++;
+    }
+    result += "}";
+    return result;
+}
+
+/*
+    replace the {0}, {1}, {2} ... in format string.
+    it's used in this way: StringFormater("int: {0}, string: {1}") << 55 << "ss"  , the result is "int: 55, string: ss".
+    the supported param type stay upwards and can be expanded.
+*/
+class StringFormater
+{
+public:
+    StringFormater(const std::string& format)
+    {
+        current_string = format;
+    }
+
+    // replace one {} to actual string.
+    template<typename T>
+    StringFormater& operator<<(const T& param)
+    {
+        const std::string paramStr = ObjectToString(param);
+        std::string target_embrace = "{" + std::to_string(curr_index++) + "}";
+
+
+        std::string::size_type pos = 0;
+        while (true)
+        {
+            pos = current_string.find(target_embrace, pos);
+            if (pos != std::string::npos)
+            {
+                current_string.replace(pos, target_embrace.length(), paramStr);
+            }
+            else
+            {
+                break;
+            }
+        };
+        return *this;
+    }
+
+    // convert to string implicitly.
+    operator std::string()
+    {
+        return current_string;
+    }
+
+private:
+    std::string current_string;  // a current string that change from format string to destination string.
+    size_t curr_index = 0;   // the current index of {} to replace.
+};
+
+}
+
+void test_string_formater()
+{
+    std::list<int> lst = {1,2,3};
+    std::vector<float> vec = {3.5, 4.4, 5.6};
+    std::map<int, std::string> m;
+    m[1] = "aaa";
+    m[2] = "bbb";
+
+    std::string sss = StringFormater("int: {0} string: {1} list: {2}, vec: {3}, map: {4}") << 5 << "abc" << lst << vec << m;
+    std::cout << sss << std::endl;  
+}
+
+
+#endif
