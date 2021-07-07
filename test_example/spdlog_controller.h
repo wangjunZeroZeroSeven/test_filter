@@ -9,9 +9,6 @@
 // the actual default format of spdlog is "[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] %v", but we have the same logger name, so we remove [%n]
 constexpr auto DEFAULT_FORMAT = "[%Y-%m-%d %H:%M:%S.%e] [%l] %v";
 
-using FileSink=spdlog::sinks::rotating_file_sink_mt;
-using FileSinkPtr=std::shared_ptr<FileSink>;
-
 // a class which wraps std::shared_ptr<spdlog::logger>
 class SpdLogger {
 public:
@@ -79,7 +76,7 @@ public:
     }
 
 private:
-    FileSinkPtr curr_sink;
+    spdlog::sink_ptr curr_sink;
 };
 
 

@@ -27,7 +27,7 @@ public:
         spdlog::init_thread_pool(QUEUE_SIZE, 1); // init global thread pool, one thread can keep sequence.
     }
 
-    FileSinkPtr GetFileSink(const std::string& filename)
+    spdlog::sink_ptr GetFileSink(const std::string& filename)
     {
         std::lock_guard<std::mutex> lock(mutex);
 
@@ -46,19 +46,19 @@ public:
         if (log_file_exists) {
             auto iter = cache.find(file_path);
             if (iter != cache.end()) {
-                FileSinkPtr sink = iter->second.lock();
+                spdlog::sink_ptr sink = iter->second.lock();
                 if (sink) {
                     return sink;
                 }
             }
 
-            FileSinkPtr sink = CreateFileSink(file_path);
+            spdlog::sink_ptr sink = CreateFileSink(file_path);
             cache[file_path] = sink;
             return sink;
         }
         else {
             // log file doesn't exist currently.
-            FileSinkPtr sink = CreateFileSink(file_path);
+            spdlog::sink_ptr sink = CreateFileSink(file_path);
             file_path = std::filesystem::canonical(file_path).string();
             cache[file_path] = sink;
             return sink;
@@ -67,14 +67,14 @@ public:
 
 private:
     // use weak_ptr to observe actual reference count.
-    std::unordered_map<std::string, std::weak_ptr<FileSink>> cache;
+    std::unordered_map<std::string, std::weak_ptr<spdlog::sinks::sink>> cache;
     std::mutex mutex;
 
     // create a new file sink.
-    FileSinkPtr CreateFileSink(const std::string& file_path)
+    spdlog::sink_ptr CreateFileSink(const std::string& file_path)
     {
         try {
-            return std::make_shared<FileSink>(file_path, ROTATING_MAX_FILE_SIZE, ROTATING_MAX_FILES_NUM);
+            return std::make_shared<spdlog::sinks::rotating_file_sink_mt>(file_path, ROTATING_MAX_FILE_SIZE, ROTATING_MAX_FILES_NUM);
         }
         catch (const spdlog::spdlog_ex& ex) {
             throw std::invalid_argument("CreateFileSink failed with file path (" + file_path + "), exception (" + ex.what() + ")");
