@@ -7,6 +7,7 @@ void test_std_copy()
 {
     std::vector<int> vec1(3, 4);
     std::vector<int> vec2(4, 5);
+    std::vector<int> vec3;
 
     //如果push到的是普通的iterator, 则是纯拷贝，需要保证后面的容器大小不小于前面的。
     std::copy(vec1.begin(), vec1.end(), vec2.begin());
@@ -22,6 +23,9 @@ void test_std_copy()
     backInserter = 8;
 
     print_vector(vec2);
+
+    std::copy(vec1.begin(), vec1.end(), vec3.begin());
+    print_vector(vec3);
 }
 
 #endif

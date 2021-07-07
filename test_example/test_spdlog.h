@@ -4,7 +4,11 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_sinks.h"
 #include "spdlog/sinks/daily_file_sink.h"
+#include "spdlog/sinks/daily_file_sink.h"
+#include <filesystem>
 
+#include "spdlog/async.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 void test_spdlog()
 {
@@ -21,8 +25,16 @@ void test_spdlog()
     auto combined_logger = std::make_shared<spdlog::logger>("name", begin(sinks), end(sinks));
     //register it if you need to access it globally
     spdlog::register_logger(combined_logger);
-
+    combined_logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] %v");
     combined_logger->info("test 123456789");
+
+
+    std::filesystem::path cwd = std::filesystem::current_path() / "log" / "abc.txt";
+    std::string sss = cwd.string();
+    int a = 0;
+
+    auto async_file = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/async_log.txt");
+
 }
 
 #endif
