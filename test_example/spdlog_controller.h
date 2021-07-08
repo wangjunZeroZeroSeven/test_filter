@@ -7,12 +7,14 @@
 #include <string_view>
 #include <map>
 
-// the actual default format of spdlog is "[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] %v", but we have the same logger name, so we remove [%n]
-constexpr auto DEFAULT_FORMAT = "[%Y-%m-%d %H:%M:%S.%e] [%l] %v";
+// the default format of spdlog, note that the logger's name %n is replaced by module name.
+constexpr auto DEFAULT_FORMAT = "[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] %v";
 
 // all modules, every time we add new module we must add value to LOG_MODULE and MODULE_NAME_ARR. 
 enum class LOG_MODULE : uint16_t {
     DEFAULT_MODULE,
+
+    MODULE_COUNT
 };
 
 // module names to write before every message, it msut keep the same order of LOG_MODULE enumerator.
@@ -92,11 +94,12 @@ public:
 
 private:
     SinksController() = default;
-    std::shared_ptr<spdlog::logger> getLogger();
+    std::shared_ptr<spdlog::logger> getLogger(LOG_MODULE i_module);
 
     std::mutex mutex;   // lock all variables.
     std::vector<Sink> curr_sinks;
-    std::shared_ptr<spdlog::logger> curr_logger;
+    // every module has a logger, they use common sinks.
+    std::array<std::shared_ptr<spdlog::logger>, static_cast<std::underlying_type_t<LOG_MODULE>>(LOG_MODULE::MODULE_COUNT)>  module_loggers;
 };
 
 
@@ -106,7 +109,11 @@ private:
 class ModuleLogger {
 public:
 
-    ModuleLogger(LOG_MODULE i_module) : curr_module(i_module) {}
+    ModuleLogger(LOG_MODULE i_module) : curr_module(i_module) {
+        if (curr_module == LOG_MODULE::MODULE_COUNT) {
+            throw std::invalid_argument("construct ModuleLogger ERROR: invalid i_module!");
+        }
+    }
 
     LOG_MODULE getModule() {
         return curr_module;
@@ -119,55 +126,54 @@ public:
     template<typename FormatString, typename... Args>
     void log(spdlog::level::level_enum lvl, const FormatString &fmt, Args&&...args)
     {
-        auto logger = SinksController::getInstance().getLogger();
+        auto logger = SinksController::getInstance().getLogger(curr_module);
         logger->log(lvl, fmt, std::forward<Args>(args)...);
     }
 
     template<typename FormatString, typename... Args>
     void trace(const FormatString& fmt, Args&&... args)
     {
-        auto logger = SinksController::getInstance().getLogger();
+        auto logger = SinksController::getInstance().getLogger(curr_module);
         logger->log(spdlog::level::trace, fmt, std::forward<Args>(args)...);
     }
 
     template<typename FormatString, typename... Args>
     void debug(const FormatString& fmt, Args&&... args)
     {
-        auto logger = SinksController::getInstance().getLogger();
+        auto logger = SinksController::getInstance().getLogger(curr_module);
         logger->log(spdlog::level::debug, fmt, std::forward<Args>(args)...);
     }
 
-    template<typename... Args>
-    void info(std::string fmt, Args&&... args)
+    template<typename FormatString, typename... Args>
+    void info(const FormatString& fmt, Args&&... args)
     {
-        fmt.insert(0, getModuleName());
-        auto logger = SinksController::getInstance().getLogger();
-        logger->log(spdlog::level::info, fmt.c_str(), std::forward<Args>(args)...);
+        auto logger = SinksController::getInstance().getLogger(curr_module);
+        logger->log(spdlog::level::info, fmt, std::forward<Args>(args)...);
     }
 
     template<typename FormatString, typename... Args>
     void warn(const FormatString& fmt, Args&&... args)
     {
-        auto logger = SinksController::getInstance().getLogger();
+        auto logger = SinksController::getInstance().getLogger(curr_module);
         logger->log(spdlog::level::warn, fmt, std::forward<Args>(args)...);
     }
 
     template<typename FormatString, typename... Args>
     void error(const FormatString& fmt, Args&&... args)
     {
-        auto logger = SinksController::getInstance().getLogger();
+        auto logger = SinksController::getInstance().getLogger(curr_module);
         logger->log(spdlog::level::err, fmt, std::forward<Args>(args)...);
     }
 
     template<typename FormatString, typename... Args>
     void critical(const FormatString& fmt, Args&&... args)
     {
-        auto logger = SinksController::getInstance().getLogger();
+        auto logger = SinksController::getInstance().getLogger(curr_module);
         logger->log(spdlog::level::critical, fmt, std::forward<Args>(args)...);
     }
 
     void flush() {
-        auto logger = SinksController::getInstance().getLogger();
+        auto logger = SinksController::getInstance().getLogger(curr_module);
         logger->flush();
     }
 

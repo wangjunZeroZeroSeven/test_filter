@@ -15,7 +15,6 @@
 namespace {
 
 constexpr auto QUEUE_SIZE = 8192;
-constexpr auto COMMON_LOGGER_NAME = "common_logger_name";
 constexpr auto ROTATING_MAX_FILE_SIZE = 100*1024*1024;
 constexpr auto ROTATING_MAX_FILES_NUM = 5;
 
@@ -133,7 +132,6 @@ Sink SinksController::createFileSink(std::string_view filename) {
     fileSink.sink_type = Sink::SinkType::FileSink;
     fileSink.originFileName = filename;
     std::tie(fileSink.base_sink, fileSink.absoluteFilePath) = FileSinkController::getInstance().getFileSink(filename.data());
-    fileSink.base_sink->set_pattern(DEFAULT_FORMAT);
     return fileSink;
 }
 
@@ -141,7 +139,6 @@ Sink SinksController::createConsoleSink() {
     Sink consoleSink;
     consoleSink.sink_type = Sink::SinkType::ConsoleSink;
     consoleSink.base_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    consoleSink.base_sink->set_pattern(DEFAULT_FORMAT);
     return consoleSink;
 }
 
@@ -149,7 +146,6 @@ Sink SinksController::createConsoleErrSink() {
     Sink consoleErrSink;
     consoleErrSink.sink_type = Sink::SinkType::ConsoleErrSink;
     consoleErrSink.base_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
-    consoleErrSink.base_sink->set_pattern(DEFAULT_FORMAT);
     return consoleErrSink;
 }
 
@@ -167,15 +163,16 @@ void SinksController::configureSinks(const std::vector<Sink>& sinks) {
     }
 
     {
-        auto* newLoggerRawPtr = new spdlog::async_logger(COMMON_LOGGER_NAME, base_sinks.begin(), base_sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block);
-        newLoggerRawPtr->flush_on(spdlog::level::err);  // when there appears an error msg, flush immediately.
-
         std::lock_guard<std::mutex> lock(mutex);
-        // call the same std::shared_ptr object with reset method is not thread safe, we should put it in lock range.
-        if (curr_logger) {
-            curr_logger->flush();
+
+        for (int i = 0; i < module_loggers.size(); i++) {
+            if (module_loggers[i]) {
+                module_loggers[i]->flush();
+            }
+            module_loggers[i].reset(new spdlog::async_logger(MODULE_NAME_ARR.at(i), base_sinks.begin(), base_sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block));
+            module_loggers[i]->flush_on(spdlog::level::err);  // when there appears an error msg, flush immediately.
         }
-        curr_logger.reset(newLoggerRawPtr);
+
         curr_sinks = sinks;
     }
 
@@ -188,11 +185,16 @@ std::vector<Sink> SinksController::getCurrSinks() {
     return curr_sinks;
 }
 
-std::shared_ptr<spdlog::logger> SinksController::getLogger() {
+std::shared_ptr<spdlog::logger> SinksController::getLogger(LOG_MODULE i_module) {
+    if (LOG_MODULE::MODULE_COUNT == i_module) {
+        throw std::invalid_argument("ERROR: wrong i_module param when calling SinksController::getLogger!");
+    }
+    auto module_index = static_cast<std::underlying_type_t<LOG_MODULE>>(i_module);
+
     {
         std::lock_guard<std::mutex> lock(mutex);
-        if (curr_logger) {
-            return curr_logger;
+        if (module_loggers[module_index]) {
+            return module_loggers[module_index];
         }
     }
 
@@ -201,6 +203,6 @@ std::shared_ptr<spdlog::logger> SinksController::getLogger() {
 
     {
         std::lock_guard<std::mutex> lock(mutex);
-        return curr_logger;
+        return module_loggers[module_index];
     }
 }
