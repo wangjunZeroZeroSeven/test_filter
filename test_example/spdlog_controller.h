@@ -5,95 +5,174 @@
 #include "spdlog/async.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 #include <string_view>
+#include <map>
 
 // the actual default format of spdlog is "[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] %v", but we have the same logger name, so we remove [%n]
 constexpr auto DEFAULT_FORMAT = "[%Y-%m-%d %H:%M:%S.%e] [%l] %v";
 
-// a class which wraps std::shared_ptr<spdlog::logger>
-class SpdLogger {
+// all modules, every time we add new module we must add value to LOG_MODULE and MODULE_NAME_ARR. 
+enum class LOG_MODULE : uint16_t {
+    DEFAULT_MODULE,
+};
+
+// module names to write before every message, it msut keep the same order of LOG_MODULE enumerator.
+constexpr std::array MODULE_NAME_ARR {
+    "default"
+};
+
+
+// python interface :
+
+// represent a file or some other output
+class Sink {
+    friend class SinksController;
 public:
-    SpdLogger(std::shared_ptr<spdlog::logger> i_logger)
+    enum class SinkType {
+        FileSink,
+        ConsoleSink,
+        ConsoleErrSink
+    };
+
+    SinkType getSinkType() {
+        return sink_type;
+    }
+
+    std::string getOriginFileName() {
+        return originFileName;
+    }    
+
+    std::string getAbsoluteFilePath() {
+        return absoluteFilePath;
+    }
+
+    void setLevel(spdlog::level::level_enum log_level) {
+        base_sink->set_level(log_level);
+    }
+
+    void setPattern(const std::string &pattern) {
+        base_sink->set_pattern(pattern);
+    }
+
+    spdlog::level::level_enum getLevel() const
     {
-        logger = i_logger;
+        return base_sink->level();
+    }
+
+private:
+    spdlog::sink_ptr base_sink;
+    SinkType sink_type = SinkType::FileSink;
+    std::string originFileName;
+    std::string absoluteFilePath;
+};
+
+
+class ModuleLogger;
+
+// a class that controll sinks and the unique logger.
+class SinksController {
+    friend class ModuleLogger;
+public:
+    static SinksController& getInstance() {
+        static SinksController instance;
+        return instance;
+    }
+
+    /*
+        the {filename}.log file will be created in the current directory, the filename param also support relative path and absolute path. 
+        e.g. "./log/aaa.log" will create a log directory and aaa.log in that directory for you automatically.
+    */
+    Sink createFileSink(std::string_view filename);
+    Sink createConsoleSink();
+    Sink createConsoleErrSink();
+
+    // configure a logger to user some sinks.
+    void configureSinks(const std::vector<Sink>& sinks);
+
+    std::vector<Sink> getCurrSinks();
+
+private:
+    SinksController() = default;
+    std::shared_ptr<spdlog::logger> getLogger();
+
+    std::mutex mutex;   // lock all variables.
+    std::vector<Sink> curr_sinks;
+    std::shared_ptr<spdlog::logger> curr_logger;
+};
+
+
+// C++ interface :
+
+// a logger class for each module. 
+class ModuleLogger {
+public:
+
+    ModuleLogger(LOG_MODULE i_module) : curr_module(i_module) {}
+
+    LOG_MODULE getModule() {
+        return curr_module;
+    }
+
+    std::string getModuleName() {
+        return MODULE_NAME_ARR.at(static_cast<std::underlying_type_t<LOG_MODULE>>(curr_module));
+    }
+
+    template<typename FormatString, typename... Args>
+    void log(spdlog::level::level_enum lvl, const FormatString &fmt, Args&&...args)
+    {
+        auto logger = SinksController::getInstance().getLogger();
+        logger->log(lvl, fmt, std::forward<Args>(args)...);
     }
 
     template<typename FormatString, typename... Args>
     void trace(const FormatString& fmt, Args&&... args)
     {
+        auto logger = SinksController::getInstance().getLogger();
         logger->log(spdlog::level::trace, fmt, std::forward<Args>(args)...);
     }
 
     template<typename FormatString, typename... Args>
     void debug(const FormatString& fmt, Args&&... args)
     {
+        auto logger = SinksController::getInstance().getLogger();
         logger->log(spdlog::level::debug, fmt, std::forward<Args>(args)...);
     }
 
-    template<typename FormatString, typename... Args>
-    void info(const FormatString& fmt, Args&&... args)
+    template<typename... Args>
+    void info(std::string fmt, Args&&... args)
     {
-        logger->log(spdlog::level::info, fmt, std::forward<Args>(args)...);
+        fmt.insert(0, getModuleName());
+        auto logger = SinksController::getInstance().getLogger();
+        logger->log(spdlog::level::info, fmt.c_str(), std::forward<Args>(args)...);
     }
 
     template<typename FormatString, typename... Args>
     void warn(const FormatString& fmt, Args&&... args)
     {
+        auto logger = SinksController::getInstance().getLogger();
         logger->log(spdlog::level::warn, fmt, std::forward<Args>(args)...);
     }
 
     template<typename FormatString, typename... Args>
     void error(const FormatString& fmt, Args&&... args)
     {
+        auto logger = SinksController::getInstance().getLogger();
         logger->log(spdlog::level::err, fmt, std::forward<Args>(args)...);
     }
 
     template<typename FormatString, typename... Args>
     void critical(const FormatString& fmt, Args&&... args)
     {
+        auto logger = SinksController::getInstance().getLogger();
         logger->log(spdlog::level::critical, fmt, std::forward<Args>(args)...);
     }
 
-private:
-    std::shared_ptr<spdlog::logger> logger;
-};
-
-// represent a file or some other output
-class Sinker {
-public:
-    Sinker(std::string_view filename);
-
-    void setLevel(spdlog::level::level_enum log_level) {
-        curr_sink->set_level(log_level);
-    }
-
-    void setPattern(const std::string &pattern) {
-        curr_sink->set_pattern(pattern);
-    }
-
-    spdlog::level::level_enum getLevel() const
-    {
-        return curr_sink->level();
+    void flush() {
+        auto logger = SinksController::getInstance().getLogger();
+        logger->flush();
     }
 
 private:
-    spdlog::sink_ptr curr_sink;
+    const LOG_MODULE curr_module;
 };
-
-
-/*
-    create a logger from sinks. 
-    the {filename}.log file exists in build/log directory.
-    the logger object you get support multithreaded context. 
-    if you need to use the same logger at different places, just call this function at difference places and it will generate different loggers which use the same sink in their implementation. as they use the same sink, better to call this function with the same file log param because the later will overwrite the former. 
-    
-    issue: https://gitlab.com/synsense-sys-int/samna/-/issues/628.
-    for more info, you could see: https://github.com/gabime/spdlog
-*/
-SpdLogger GetSpdLogger(const std::string& filename,
-                       bool console = false, 
-                       spdlog::level::level_enum file_log_level = spdlog::level::trace,
-                       const std::string& file_format = DEFAULT_FORMAT,
-                       spdlog::level::level_enum console_log_level = spdlog::level::trace,
-                       const std::string& console_format = DEFAULT_FORMAT);
 
 #endif

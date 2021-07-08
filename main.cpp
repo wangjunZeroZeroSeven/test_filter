@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 //#include "example.h"
 // #include "test_stl/variant.h"
 // #include "test_example/throw.h"
@@ -11,33 +12,32 @@
 // #include "test_example/one_method_override_same_two.h"
 // #include "test_example/test_spdlog.h"
 #include "test_example/spdlog_controller.h"
-#include "test_example/defer_task.h"
-#include <filesystem>
-#include <strstream>
+// #include "test_example/defer_task.h"
+// #include <filesystem>
+// #include <strstream>
 
 int main(int, char**) {
-    test_defer_task();
 
-    auto logger = GetSpdLogger("bbb", true);
+    ModuleLogger logger(LOG_MODULE::DEFAULT_MODULE);
     logger.info("format string {}, {}, {}", 1, 3.5, "abc");
 
-    // std::filesystem::path p1 = "./log/aaa.log";
-    // std::filesystem::path p2 = "log/aaa.log";
-    // std::filesystem::path p3 = "/home/synsense/projects/test_filter/build/log/aaa.log";
-    // try {
-    //     std::cout << "p1 == p3: " << std::filesystem::equivalent(p1, p3) << std::endl;
-    // }
-    // catch (const std::filesystem::__cxx11::filesystem_error& ex) {
-    //     std::cout << "throw exception111: " << ex.what() << std::endl;
-    // }
+    auto sink = SinksController::getInstance().createFileSink("samna2");
+    SinksController::getInstance().configureSinks({sink});
 
-    auto logger2 = GetSpdLogger("bbb", true);
-    logger2.info("it's the beginning.");
-    logger2.warn("format string {}, {}, {}", 1, 3.5, "abc");
+    auto logger2 = logger;
+    logger2.info("abccccccccccc");
 
-    // logger.warn("111");
-    // logger2.warn("333");
+    //std::this_thread::sleep_for(std::chrono::seconds(60));
 
-    //std::this_thread::sleep_for(std::chrono::minutes(1));
+    // logger.log(spdlog::logger::info, "aaaaaa");
+
+    // logger.log(spdlog::logger::info, "format string {}, {}, {}", 1, 3.5, "abc");
+
+    // auto logger2 = GetSpdLogger("bbb", true);
+    // logger2.log(spdlog::logger::info, "it's the beginning.");
+    // logger2.log(spdlog::logger::warn, "format string {}, {}, {}", 1, 3.5, "abc");
+
+
+
     return 0;
 }
