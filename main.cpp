@@ -18,6 +18,8 @@
 
 int main(int, char**) {
 
+    initModuleLogger();
+
     ModuleLogger logger(LOG_MODULE::DEFAULT_MODULE);
     logger.info("format string {}, {}, {}", 1, 3.5, "abc");
 
