@@ -5,15 +5,17 @@
 
 void test_assert()
 {
-    try
-    {
-        assert(false && "abc");
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
+    // try
+    // {
+    //     assert(false && "abc");
+    // }
+    // catch(const std::exception& e)
+    // {
+    //     std::cerr << e.what() << '\n';
+    // }
     
+
+    assert(false && "abc");
 }
 
 #endif
