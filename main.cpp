@@ -11,20 +11,22 @@
 // #include "test_example/method_pointer.h"
 // #include "test_example/one_method_override_same_two.h"
 // #include "test_example/test_spdlog.h"
-#include "test_example/test_destruct_order.h"
-#include "template/list.h"
+// #include "test_example/test_destruct_order.h"
+// #include "template/list.h"
+// #include "template/transform.h"
+// #include "test_basic/reference.h"
+#include "test_stl/unique_ptr.h"
 
 
 // template<class...Elements>
 // struct size : std::integral_constant<size_t, sizeof...(Elements)>
 // {};
 
-
+#include <tuple>
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
-
-    test_template();
+    test_custom_unique_ptr();
 
     return 0;
 }
