@@ -16,6 +16,7 @@
 // #include "template/transform.h"
 // #include "test_basic/reference.h"
 #include "test_stl/unique_ptr.h"
+#include "test_stl/index_seq.h"
 
 
 // template<class...Elements>
@@ -26,7 +27,7 @@
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
-    test_custom_unique_ptr();
+    test_index_seq();
 
     return 0;
 }
