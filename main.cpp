@@ -20,6 +20,7 @@
 // #include "test_basic/counter_macro.h"
 // #include "test_basic/rvalue.h"
 #include "test_basic/universal_reference.h"
+#include "test_example/struct_compare.h"
 
 
 // template<class...Elements>
@@ -30,7 +31,7 @@
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
-    test_universal_reference();
+    test_bind_struct_type_comparator();
 
     return 0;
 }
