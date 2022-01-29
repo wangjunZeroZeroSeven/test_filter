@@ -15,8 +15,11 @@
 // #include "template/list.h"
 // #include "template/transform.h"
 // #include "test_basic/reference.h"
-#include "test_stl/unique_ptr.h"
-#include "test_stl/index_seq.h"
+// #include "test_stl/unique_ptr.h"
+// #include "test_stl/index_seq.h"
+// #include "test_basic/counter_macro.h"
+// #include "test_basic/rvalue.h"
+#include "test_basic/universal_reference.h"
 
 
 // template<class...Elements>
@@ -27,7 +30,7 @@
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
-    test_index_seq();
+    test_universal_reference();
 
     return 0;
 }
