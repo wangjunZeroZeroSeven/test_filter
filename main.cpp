@@ -19,8 +19,9 @@
 // #include "test_stl/index_seq.h"
 // #include "test_basic/counter_macro.h"
 // #include "test_basic/rvalue.h"
-#include "test_basic/universal_reference.h"
-#include "test_example/struct_compare.h"
+// #include "test_basic/universal_reference.h"
+// #include "test_example/struct_compare.h"
+#include "test_basic/trivial.h"
 
 
 // template<class...Elements>
@@ -31,7 +32,7 @@
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
-    test_bind_struct_type_comparator();
+    test_trivial();
 
     return 0;
 }
