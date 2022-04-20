@@ -28,6 +28,13 @@ struct DvsLayerConfig {
     bool passSensorEvents = true;
 };
 
+struct Structs1 {
+    uint8_t destination = 1;
+};
+struct Structs2 {
+    uint8_t destination;
+};
+
 template<typename T>
 struct Vec2 {
     T x;
@@ -49,6 +56,10 @@ int test_trivial()
     std::cout << std::is_trivial<DvsLayerConfig>::value << std::endl;
     std::cout << std::is_trivially_copyable<DvsLayerConfig>::value << std::endl;
     std::cout << std::is_trivially_copyable<Vec2<std::uint16_t>>::value << std::endl;
+
+    std::cout << "---------------" << std::endl;
+    std::cout << std::is_trivial<Structs1>::value << std::endl;
+    std::cout << std::is_trivial<Structs2>::value << std::endl;
 
     return 0;
 }

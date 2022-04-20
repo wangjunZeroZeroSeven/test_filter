@@ -21,7 +21,10 @@
 // #include "test_basic/rvalue.h"
 // #include "test_basic/universal_reference.h"
 // #include "test_example/struct_compare.h"
-#include "test_basic/trivial.h"
+// #include "test_basic/trivial.h"
+// #include "test_basic/forward_failure.h"
+// #include "test_basic/function_ptr.h"
+#include "test_basic/struct_bits.h"
 
 
 // template<class...Elements>
@@ -32,7 +35,7 @@
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
-    test_trivial();
+    test_struct_bits();
 
     return 0;
 }
