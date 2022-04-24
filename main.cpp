@@ -25,7 +25,8 @@
 // #include "test_basic/forward_failure.h"
 // #include "test_basic/function_ptr.h"
 // #include "test_basic/struct_bits.h"
-#include  "test_stl/async.h"
+// #include  "test_stl/async.h"
+#include "test_stl/promise.h"
 
 
 // template<class...Elements>
@@ -36,7 +37,7 @@
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
-    test_async();
+    test_promise();
 
     return 0;
 }
