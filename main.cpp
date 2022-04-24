@@ -24,7 +24,8 @@
 // #include "test_basic/trivial.h"
 // #include "test_basic/forward_failure.h"
 // #include "test_basic/function_ptr.h"
-#include "test_basic/struct_bits.h"
+// #include "test_basic/struct_bits.h"
+#include  "test_stl/async.h"
 
 
 // template<class...Elements>
@@ -35,7 +36,7 @@
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
-    test_struct_bits();
+    test_async();
 
     return 0;
 }

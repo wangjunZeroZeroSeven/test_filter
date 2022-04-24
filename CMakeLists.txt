@@ -8,6 +8,9 @@ enable_testing()
 
 add_executable(test_filter main.cpp)
 
+find_package (Threads REQUIRED)
+target_link_libraries(test_filter PUBLIC Threads::Threads) 
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
