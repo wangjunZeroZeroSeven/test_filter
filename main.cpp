@@ -26,18 +26,11 @@
 // #include "test_basic/function_ptr.h"
 // #include "test_basic/struct_bits.h"
 // #include  "test_stl/async.h"
-#include "test_stl/promise.h"
-
-
-// template<class...Elements>
-// struct size : std::integral_constant<size_t, sizeof...(Elements)>
-// {};
-
-#include <tuple>
+#include "test_basic/nullptr.h"
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
-    test_promise();
+    test_nullptr();
 
     return 0;
 }
