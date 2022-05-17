@@ -26,11 +26,17 @@
 // #include "test_basic/function_ptr.h"
 // #include "test_basic/struct_bits.h"
 // #include  "test_stl/async.h"
-#include "test_basic/nullptr.h"
+// #include "test_basic/test_destructor.h"
+// #include "test_basic/uncaught_exception.h"
+#include "test_basic/delete.h"
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
-    test_nullptr();
+    // test_destructor2();
+    // test_uncaught_exception();
+    // Color::imcomplete;
+    // Color::indeterminate;
+    test_is_lucky();
 
     return 0;
 }
