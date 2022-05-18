@@ -6,7 +6,7 @@ project(test_filter VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-add_executable(test_filter main.cpp test_basic/test_enum.cpp)
+add_executable(test_filter main.cpp)
 
 find_package (Threads REQUIRED)
 target_link_libraries(test_filter PUBLIC Threads::Threads) 
