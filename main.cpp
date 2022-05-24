@@ -31,7 +31,8 @@
 // #include "test_basic/delete.h"
 // #include "test_basic/ref_qualifiter.h"
 // #include "test_basic/noexcept.h"
-#include "test_basic/edit_rvalue.h"
+// #include "test_basic/edit_rvalue.h"
+#include "test_basic/virtual_method.h"
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
@@ -42,7 +43,7 @@ int main(int, char**) {
     // test_is_lucky();
     // test_ref_qualifier();
     // test_noexcept();
-    test_edit_rvalue();
+    test_virtual_method();
 
     return 0;
 }
