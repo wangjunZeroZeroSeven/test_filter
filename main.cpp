@@ -29,7 +29,9 @@
 // #include "test_basic/test_destructor.h"
 // #include "test_basic/uncaught_exception.h"
 // #include "test_basic/delete.h"
-#include "test_basic/ref_qualifiter.h"
+// #include "test_basic/ref_qualifiter.h"
+// #include "test_basic/noexcept.h"
+#include "test_basic/edit_rvalue.h"
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
@@ -38,7 +40,9 @@ int main(int, char**) {
     // Color::imcomplete;
     // Color::indeterminate;
     // test_is_lucky();
-    test_ref_qualifier();
+    // test_ref_qualifier();
+    // test_noexcept();
+    test_edit_rvalue();
 
     return 0;
 }
