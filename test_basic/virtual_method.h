@@ -14,10 +14,6 @@ public:
         std::cout << "==== constructed base" << std::endl;
     }
 
-    virtual void f() {
-        std::cout << "base function is called." << std::endl;
-    }
-
     void run() {
         while (alive) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -53,14 +49,19 @@ public:
         stopRun();
     }
 
-protected:
+private:
     std::atomic_bool alive = false;
     std::thread rwThread;
+
+    virtual void f() {
+        std::cout << "base function is called." << std::endl;
+    }
 };
 
 class Derived: public Base {
-public:
+private:
     virtual void f() override {
+        // bool ret = alive;    // can't visit private member!
         std::cout << "derived function is called." << std::endl;
     }
 };

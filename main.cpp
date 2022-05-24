@@ -33,6 +33,7 @@
 // #include "test_basic/noexcept.h"
 // #include "test_basic/edit_rvalue.h"
 #include "test_basic/virtual_method.h"
+// #include "test_basic/derive_private.h"
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
@@ -44,6 +45,7 @@ int main(int, char**) {
     // test_ref_qualifier();
     // test_noexcept();
     test_virtual_method();
+    // test_derive_private();
 
     return 0;
 }
