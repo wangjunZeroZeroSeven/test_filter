@@ -30,6 +30,14 @@ void doSomething3() noexcept {
     throw "aaaaaaaaaaaaaaa";
 }
 
+class A
+{
+public:
+    ~A() {
+        throw "aaaaaaaaaaaaaaa";
+    }
+};
+
 void test_noexcept() {
     doSomething1();     // no terminate
     // doSomething2();  // can debug with core and we can see local variables in debug mode but no locals in release mode.
@@ -44,12 +52,20 @@ void test_noexcept() {
     }
 
     // exception in noexcept function can't be caught. but we still can see stack.
-    try {
-        doSomething3();
-    }
-    catch(...) {
-        std::cout << "catch exception in noexcept. " << std::endl;
-    }
+    // try {
+    //     doSomething3();
+    // }
+    // catch(...) {
+    //     std::cout << "catch exception in noexcept. " << std::endl;
+    // }
+
+    // exception in detructor can't be caught, as destruct is noexcept implicitly.
+    // try {
+    //     A a;
+    // }
+    // catch(...) {
+    //     std::cout << "catch exception in destructor. " << std::endl;
+    // }
 }
 
 #endif
