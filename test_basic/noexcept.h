@@ -59,7 +59,7 @@ void test_noexcept() {
     //     std::cout << "catch exception in noexcept. " << std::endl;
     // }
 
-    // exception in detructor can't be caught, as destruct is noexcept implicitly.
+    // exception in detructor can't be caught, as destructor is noexcept implicitly.
     // try {
     //     A a;
     // }
