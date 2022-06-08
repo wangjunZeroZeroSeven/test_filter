@@ -81,6 +81,7 @@ public:
                 // std::cout << "get prime: " << num << std::endl;
                 // std::cout 不支持constexpr
                 curr_index++;
+                num;
             }
         }
 
@@ -141,6 +142,8 @@ void test_constexpr() {
 
     constexpr auto ret2 = calc_with_generator(upBound);
     std::cout << "get result: " << ret2 << std::endl;
+
+    // constexpr函数在C++17中不好返回列表。关于编译器计算素数请参考 calc_prime_in_compilation.h 文件。
 }
 
 #endif
