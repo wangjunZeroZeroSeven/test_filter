@@ -39,7 +39,8 @@
 // #include "test_basic/lambda_assign.h"
 // #include "test_basic/constexpr.h"
 // #include "test_example/calc_prime_in_compilation.h"
-#include "test_example/calc_prime_good.h"
+// #include "test_example/calc_prime_good.h"
+#include "test_example/test_define_iterator.h"
 
 int main(int, char**) {
     std::cout << "begin " << std::endl;
@@ -54,7 +55,8 @@ int main(int, char**) {
     // test_derive_private();
     // test_constexpr();
     // test_calc_prime();
-    test_prime_good();
+    // test_prime_good();
+    test_define_interator();
 
     return 0;
 }
